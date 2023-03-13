@@ -25,7 +25,7 @@ import {
     getDownloadURL,
   } from "firebase/storage";
 
-const userId = localStorage.getItem("uId");
+
 const theme = createTheme({
     components: {
         MuiInputLabel: {
@@ -101,6 +101,7 @@ function Create() {
     const [category, setCategory] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const navigate = useNavigate();
+    const userId = localStorage.getItem("uId");
 
     const handleChange = (event) => {
         setCategory(event.target.value);
@@ -142,7 +143,7 @@ return (
     <>
         <Box sx={{width:{md:'60vw',xs:'80vw'},margin:'0 auto'}}>
         {loading ?(
-               <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
+               <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',flexDirection:'column',gap:4,placeItems:'center'}}> <CircularProgress/> Uploading Video...</div>
         ) :(
             <Box sx={{border:'1px solid #fff',padding:'16px',borderRadius:'6px',color:'#fff', display:'flex', gap:4,flexDirection:'column'}}>
             <ThemeProvider theme={theme}>

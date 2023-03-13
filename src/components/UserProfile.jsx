@@ -10,7 +10,6 @@ import { collection, getDocs, query, where} from "firebase/firestore";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { useNavigate } from 'react-router-dom';
 
-// const userId=localStorage.getItem('uId');
 function UserProfile() {
   const [feeds, setFeeds] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
