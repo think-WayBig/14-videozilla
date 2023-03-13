@@ -11,6 +11,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link, useNavigate} from 'react-router-dom';
 import db from '../firebase'; 
 import { collection,query,getDocs, where } from "firebase/firestore";
+import Snackbar from '@mui/material/Snackbar';
+
 
 function Copyright(props) {
   return (
@@ -78,6 +80,15 @@ const theme = createTheme({
           }
         }
       },
+      MuiSnackbar: {
+        styleOverrides:{
+          root: {
+            bottom:'0px' ,
+            width :'250px'
+          },
+        }
+        
+      },
     MuiInput: {
       styleOverrides: {
         input: {
@@ -99,34 +110,62 @@ const theme = createTheme({
 export default function Login() {
   const [email,setEmail]=React.useState([]);
   const [password,setPassword]=React.useState([]);
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: '',
+  });
+  
+  const handleSnackbarClose = () => {
+    setSnackbar({
+      ...snackbar,
+      open: false,
+    });
+  };
+
   const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (email=="") {
-      alert('Please enter your email.');
+      setSnackbar({
+        open: true,
+        message: 'Please enter your email.',
+      });
       return;
     }
 
     if (password=="") {
-      alert('Please enter your password.');
+      setSnackbar({
+        open: true,
+        message: 'Please enter your password.',
+      });
       return;
     }
     const q = query(collection(db, "users"), where("email", "==", email), where("password", "==", password));
     const querySnapshot = await getDocs(q);
-    if(querySnapshot.empty){alert("Invalid email or password")}
+    if(querySnapshot.empty){
+      setSnackbar({
+        open: true,
+        message: 'Invalid email or password!',
+      });}
     else{
       querySnapshot.docs.map((doc)=>{
         var data = doc.data();
         localStorage.setItem("uId", data.userId);
-        alert("Login successful")
-      navigate('/',{ replace: true });
+        setSnackbar({
+          open: true,
+          message: 'Login successful!',
+        });
+        // navigate('/',{ replace: true });
+        setTimeout(function() {navigate('/',{ replace: true })},2000);
       })
       
     }
 
   };
+  
 
   return (
+   
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
         <Box
@@ -187,9 +226,12 @@ export default function Login() {
                 </Link> */}
               </Grid>
             </Grid>
+            
           </Box>
+          <Copyright sx={{ mt: 2, mb: 4 }} />
         </Box>
-        <Copyright sx={{ mt: 2, mb: 4 }} />
+        
+      <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
       </Container>
     </ThemeProvider>
   );

@@ -8,6 +8,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import db from '../firebase';
 import { setDoc,doc,query,where,getDocs,collection } from "firebase/firestore";
+import Snackbar from '@mui/material/Snackbar';
 
 function Copyright(props) {
   return (
@@ -68,6 +69,15 @@ const theme = createTheme({
           }
         }
       },
+      MuiSnackbar: {
+        styleOverrides:{
+          root: {
+            bottom:'0px',
+            width :'250px'
+          },
+        }
+        
+      },
       MuiInputBase:{
         styleOverrides:{
           input:{
@@ -99,34 +109,60 @@ export default function SignUp() {
     const [name, setName] = React.useState([]);
     const [email, setEmail] = React.useState([]);
     const [password, setPassword] = React.useState([]);
+    const [snackbar, setSnackbar] = React.useState({
+      open: false,
+      message: '',
+    });
+    
+    const handleSnackbarClose = () => {
+      setSnackbar({
+        ...snackbar,
+        open: false,
+      });
+    };
 
     const uId = `${Date.now()}`;
     const handleSubmit = async (event) => {
     event.preventDefault();
     if (name=="") {
-      alert('Please enter your name.');
+      setSnackbar({
+        open: true,
+        message: 'Please enter your name.',
+      });
       return;
     }
     if (email=="") {
-      alert('Please enter your email.');
+      setSnackbar({
+        open: true,
+        message: 'Please enter your email.',
+      });
       return;
     }
     if (password=="") {
-      alert('Please enter your password.');
+      setSnackbar({
+        open: true,
+        message: 'Please enter your password.',
+      });
       return;
     }
     const q = query(collection(db, "users"), where("email", "==", email));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       // Email already exists in Firestore
-      alert("Email already exists");
+      setSnackbar({
+        open: true,
+        message: 'Email already exists.',
+      });
     }
     else{
     await setDoc(doc(db, "users", uId),{
         name,email,password,
         userId:uId
     })
-    alert('Registration Successful')
+    setSnackbar({
+      open: true,
+      message: 'Registration Successful.',
+    });
     localStorage.setItem('uId',uId);}
   };
 
@@ -134,19 +170,11 @@ export default function SignUp() {
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
         <Box
-          sx={{
-            
-            display: 'flex',
+          sx={{display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}
         >
-          {/* <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Login
-          </Typography> */}
           <Box component="form" noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
           <TextField
               margin="normal"
@@ -192,9 +220,10 @@ export default function SignUp() {
             </Button>
             
           </Box>
-        </Box>
         <Copyright sx={{ mt: 2, mb: 4 }} />
+        </Box>
       </Container>
+      <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}}/>
     </ThemeProvider>
   );
 }

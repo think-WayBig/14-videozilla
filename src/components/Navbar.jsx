@@ -186,10 +186,10 @@ const uId = localStorage.getItem('uId');
             
             <IconButton
               color="inherit">
-                <Link to='/create'><AddBoxIcon sx={{fontSize: '1.8em',color:'#fff'}}/></Link>
+                <Link to='/create' style={{display:'flex'}}><AddBoxIcon sx={{fontSize: '1.8em',color:'#fff'}}/></Link>
             </IconButton>
             <IconButton
-              edge="end"
+              
               aria-label="account of current user"
               aria-controls={menuId}
               aria-haspopup="true"
