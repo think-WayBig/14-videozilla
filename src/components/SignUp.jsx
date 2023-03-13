@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import db from '../firebase';
-import { setDoc,doc } from "firebase/firestore";
+import { setDoc,doc,query,where,getDocs,collection } from "firebase/firestore";
 
 function Copyright(props) {
   return (
@@ -103,12 +103,31 @@ export default function SignUp() {
     const uId = `${Date.now()}`;
     const handleSubmit = async (event) => {
     event.preventDefault();
+    if (name=="") {
+      alert('Please enter your name.');
+      return;
+    }
+    if (email=="") {
+      alert('Please enter your email.');
+      return;
+    }
+    if (password=="") {
+      alert('Please enter your password.');
+      return;
+    }
+    const q = query(collection(db, "users"), where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      // Email already exists in Firestore
+      alert("Email already exists");
+    }
+    else{
     await setDoc(doc(db, "users", uId),{
         name,email,password,
         userId:uId
     })
     alert('Registration Successful')
-    localStorage.setItem('uId',uId);
+    localStorage.setItem('uId',uId);}
   };
 
   return (
@@ -128,7 +147,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Login
           </Typography> */}
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
+          <Box component="form" noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
           <TextField
               margin="normal"
               required
@@ -146,6 +165,7 @@ export default function SignUp() {
             fullWidth
             id="email"
             label="Email Address"
+            type='email'
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -166,6 +186,7 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Sign Up
             </Button>

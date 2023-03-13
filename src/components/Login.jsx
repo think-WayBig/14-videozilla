@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link, useNavigate} from 'react-router-dom';
-import db from '../firebase';
+import db from '../firebase'; 
 import { collection,query,getDocs, where } from "firebase/firestore";
 
 function Copyright(props) {
@@ -87,11 +87,9 @@ const theme = createTheme({
             '&:before': {
               borderBottom: '1px solid #ffffffab', // color of the before pseudo-element
             },
-            
             '&:hover:not(.Mui-disabled):before': {
               borderBottom: '1px solid #ffffffab', // color of the before pseudo-element on hover
             },
-            
           },
       },
     },
@@ -104,6 +102,15 @@ export default function Login() {
   const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (email=="") {
+      alert('Please enter your email.');
+      return;
+    }
+
+    if (password=="") {
+      alert('Please enter your password.');
+      return;
+    }
     const q = query(collection(db, "users"), where("email", "==", email), where("password", "==", password));
     const querySnapshot = await getDocs(q);
     if(querySnapshot.empty){alert("Invalid email or password")}
@@ -130,7 +137,7 @@ export default function Login() {
           }}
         >
          
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
+          <Box component="form"  noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
             <TextField
               margin="normal"
               required
@@ -164,6 +171,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Login
             </Button>
