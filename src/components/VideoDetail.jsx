@@ -59,6 +59,7 @@ function VideoDetail() {
         return feeds.filter((feed) => feed.id !== videoId);
       }, [feeds,videoId]);
 
+      const threeVideos = filteredFeeds.slice(0, 3);
     const handleCardClick = (videoId) => {
         navigate('../videoDetail/' + videoId);
       };
@@ -88,7 +89,7 @@ function VideoDetail() {
             <p>Recommended Videos</p>
             <Box sx={{flexGrow:1,display:'flex', flexWrap:'wrap',gap:'15px'}}>
                 
-                {videoId ? (filteredFeeds.map((feed) => (
+                {videoId ? (threeVideos.map((feed) => (
                     <Card key={feed.id} onClick={()=>{handleCardClick(feed.id)}} sx={{ maxWidth: 300, boxShadow:'0px 5px 10px -3px rgb(0 0 0 / 15%)', backgroundColor:"#1a202c",borderRadius:'6px'}} >
                         <CardActionArea sx={{overflow:'hidden', "&:hover":{opacity:1}}} >
                             <CardMedia
