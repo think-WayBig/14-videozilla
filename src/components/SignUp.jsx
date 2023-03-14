@@ -4,6 +4,8 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import db from '../firebase';
@@ -167,6 +169,8 @@ export default function SignUp() {
   };
 
   return (
+    <Box sx={{minHeight:'100vh',display:'flex',placeItems:'center',justifyContent:'center'}}>
+    <Box sx={{ bgcolor: 'inherit', width: {md: '50%',xs:'80%'} }}>
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
         <Box
@@ -175,6 +179,12 @@ export default function SignUp() {
             alignItems: 'center',
           }}
         >
+           <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign Up
+          </Typography>
           <Box component="form" noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
           <TextField
               margin="normal"
@@ -218,12 +228,16 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-            
+            <Link to="../login" variant="body2" style={{color:'#fff',textDecoration:'none'}} className="loginSignupLink">
+                  {"Already a User? Login Here"}
+                </Link>
           </Box>
         <Copyright sx={{ mt: 2, mb: 4 }} />
         </Box>
       </Container>
       <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}}/>
     </ThemeProvider>
+    </Box>
+    </Box>
   );
 }

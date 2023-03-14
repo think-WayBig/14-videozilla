@@ -1,6 +1,18 @@
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+    components:{
+      MuiPaper:{
+        styleOverrides:{
+          root:{
+          color:'#fff',
+          backgroundColor:'#1a202c',
+          },
+          boxShadow:'none',
+          
+        }
+      }
+    },
     palette: {
       primary: {
         main: '#fff',
@@ -13,6 +25,7 @@ const theme = createTheme({
       },
       
     },
+    
   });
 
   export default theme;

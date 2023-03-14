@@ -168,7 +168,7 @@ const uId = localStorage.getItem('uId');
   return (
     <Box sx={{ flexGrow: 1,backgroundColor:"#1a202c"}}>
       <AppBar position="static" sx={{backgroundColor: '#1a202c', boxShadow:'none' , padding:'16px'}}>
-        <Toolbar>
+        <Toolbar sx={{backgroundColor:'#1a202c'}}>
           <Box sx={{flexGrow:1,marginRight:{xs:'20px'},display:"flex"}}>
           {/* <Link to='/'><img src={logo} width="150px" alt='logo' title='Home'/></Link> */}
             <Link to='/' style={{color:'inherit',textDecoration:'none'}}><p title='Home' style={{fontSize:'1.6rem',margin:'0px'}}>VideoZilla</p></Link>

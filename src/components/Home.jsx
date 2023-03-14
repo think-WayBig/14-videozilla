@@ -17,7 +17,7 @@ function Home() {
             </Box>
         <Box sx={{display:'flex',justifyContent:'center', flexDirection:{xs:'column',md:'row'}}}>
             
-            <Box sx={{flexGrow:1,padding:{md:'40px',xs:'20px 40px'},display:'flex'}}>
+            <Box sx={{flexGrow:1,padding:{md:'40px',xs:'20px 20px'},display:'flex',overflow:'auto'}}>
             <Routes>
                 <Route path="/" element={<Feeds />} />
                 <Route path="/category/:categoryId" element={<Feeds />} />

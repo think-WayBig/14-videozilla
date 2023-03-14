@@ -5,6 +5,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -156,7 +158,7 @@ export default function Login() {
           message: 'Login successful!',
         });
         // navigate('/',{ replace: true });
-        setTimeout(function() {navigate('/',{ replace: true })},2000);
+        setTimeout(function() {navigate('/')},2000);
       })
       
     }
@@ -165,7 +167,8 @@ export default function Login() {
   
 
   return (
-   
+    <Box sx={{minHeight:'100vh',display:'flex',placeItems:'center',justifyContent:'center'}}>
+    <Box sx={{ bgcolor: 'inherit', width: {md: '50%',xs:'80%'} }}>
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
         <Box
@@ -175,7 +178,12 @@ export default function Login() {
             alignItems: 'center',
           }}
         >
-         
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Login
+          </Typography>         
           <Box component="form"  noValidate sx={{ mt: 1 ,padding:'24px 0'}}>
             <TextField
               margin="normal"
@@ -221,9 +229,9 @@ export default function Login() {
                 </Link>
               </Grid>
               <Grid item>
-                {/* <Link to="/" variant="body2">
+                <Link to="../signup" className='loginSignupLink' variant="body2" style={{color:'#fff',textDecoration:'none'}}>
                   {"Don't have an account? Sign Up"}
-                </Link> */}
+                </Link>
               </Grid>
             </Grid>
             
@@ -234,5 +242,7 @@ export default function Login() {
       <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
       </Container>
     </ThemeProvider>
+    </Box>
+    </Box>
   );
 }

@@ -25,3 +25,32 @@ code {
   place-items: center !important;
   text-align: center !important;
 }
+.slick-track{
+    display: flex !important;
+    gap: 15px !important;
+    transform: none ;
+    width:75rem !important;
+}
+
+.slick-list{
+  overflow: hidden !important;
+  display: flex;
+  flex-wrap: wrap;
+
+}
+.slick-slider{
+  display: flex;
+  overflow: hidden ;
+}
+.slick-slide{
+  width: auto !important;
+}
+
+.loginSignupLink:hover{
+  text-decoration: underline !important;
+}
+
+.slick-arrow{
+  color:#fff !important;
+  padding:0px 10px !important; 
+}
