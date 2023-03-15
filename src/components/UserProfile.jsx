@@ -16,22 +16,30 @@ function UserProfile() {
   const { uId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const userId = localStorage.getItem('uId');
 
   React.useEffect(() => {
-    async function fetchFeeds() {
-      setLoading(true);
-      const q =  query(collection(db, "videos"), where("userId", "==", uId))
-      const querySnapshot = await getDocs(q);
-      const fetchedFeeds = querySnapshot.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      });
-      setFeeds(fetchedFeeds);
-      setLoading(false);
+    if(userId === uId){
+      async function fetchFeeds() {
+        setLoading(true);
+        const q =  query(collection(db, "videos"), where("userId", "==", uId))
+        const querySnapshot = await getDocs(q);
+        const fetchedFeeds = querySnapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setFeeds(fetchedFeeds);
+        setLoading(false);
+      }
+      fetchFeeds();
     }
-    fetchFeeds();
+    else{
+      console.error("User Not Logged in")
+      setLoading(false)
+    }
+    
   }, [uId, location]);
 
   const filteredFeeds = React.useMemo(() => {

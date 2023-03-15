@@ -94,7 +94,7 @@ function VideoDetail() {
         const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
         const minutesDiff = Math.floor((timeDiff % (60 * 60 * 1000)) / (60 * 1000));
         if(hoursDiff<1){ return `${minutesDiff} minutes ago`}
-        else if(daysDiff<=1){ return `${minutesDiff} minute ago`}
+        else if(hoursDiff<=1){ return `${minutesDiff} minute ago`}
         else if(daysDiff<1){ return `${hoursDiff} hours ago`}
         else if(daysDiff===1){ return `${daysDiff} day ago`}
         else if(daysDiff>1){ return `${daysDiff} days ago`};
