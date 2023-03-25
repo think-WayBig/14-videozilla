@@ -321,7 +321,7 @@ function VideoDetail() {
     {isLoading ?(
         <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
     ):(
-        <Box sx={{display:'block',width:'100%',padding:{md:"0px",xs:"0px 0px"}}}>
+        <Box sx={{display:'grid',width:'100%'}}>
         <Box  sx={{display:'flex',flexWrap:'wrap',flexDirection:'row',gap:'20px',flexGrow:1,marginBottom:'20px',padding:{md:'0px',xs:'0px 20px'}}}>
             {
             video.map((data)=>{

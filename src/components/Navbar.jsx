@@ -158,7 +158,7 @@ const handleSearchKeyPress = async (event) => {
         },
       }}
     >
-      {uId==null ? <><Link to='/login' style={{textDecoration:'none'}}><MenuItem sx={{padding:'0px 16px'}}>
+      {uId==null ? <><Link to='/login' style={{textDecoration:'none',color:'#000000de'}}><MenuItem sx={{padding:'0px 16px'}}>
       <IconButton
       size="large"
             color="inherit">
@@ -230,18 +230,9 @@ const handleSearchKeyPress = async (event) => {
             : ""}
             <IconButton
               color="inherit" sx={{display:'flex'}}>
-                <Link to='/create' style={{display:'flex'}} title="Create"><AddBoxIcon sx={{fontSize: '1.8em',color:'#fff'}}/></Link>
+                <Link to='/create' style={{display:'flex'}} title="Create"><AddBoxIcon sx={{fontSize: '1.8em !important',color:'#fff'}}/></Link>
             </IconButton>
-            { uId==null ? <IconButton
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-              id="profileicon"
-              sx={{display:'none !important'}}>
-              <AccountCircle sx={{fontSize: '1.8em'}}/>
-            </IconButton> : <IconButton
+            { uId==null ? "" : <IconButton
               aria-label="account of current user"
               aria-controls={menuId}
               aria-haspopup="true"
@@ -249,7 +240,7 @@ const handleSearchKeyPress = async (event) => {
               color="inherit"
               id="profileicon"
               sx={{display:'flex'}}>
-              <AccountCircle sx={{fontSize: '1.8em'}}/>
+              <AccountCircle sx={{fontSize: '1.8em !important'}}/>
             </IconButton> }
           
           </Box>

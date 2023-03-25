@@ -146,9 +146,11 @@ function Create() {
         },
       },
     };
-
+    const id = `${Date.now()}`;
     const handleSubmit = async (e) => {
-      if(userId !== null){
+      if(!userId){
+        navigate('/login');
+      }
         if (title=="") {
           setSnackbar({
             open: true,
@@ -156,9 +158,9 @@ function Create() {
           });
           return;
         }
+        
           setLoading(true);
           e.preventDefault();
-          const id = Date.now();
           if (selectedFile == null) {alert("Please choose a file first!"); setLoading(false)};
           const fileName = selectedFile.name+v4();
           const videoRef = ref(storage, `/videos/${fileName}`);
@@ -167,11 +169,10 @@ function Create() {
           await setDoc(doc(db, "videos", id), {
               title,
               category,
-              id ,
+              id:id,
               videoURL: downloadURL,
               videoName : fileName,
-              userId ,
-              views : 0
+              userId 
             });
             setSnackbar({
               open: true,
@@ -180,14 +181,12 @@ function Create() {
               // alert("Video uploaded successfully");
               navigate('/');
               setLoading(false);
-      }else{
-        navigate('/login');
-      }
+      
       
       };
 
 return (
-    <>
+    <Box sx={{display:'flex',flexDirection:'column',flexGrow:1}}>
         <Box sx={{width:{md:'60vw',xs:'80vw'},margin:'0 auto'}}>
         {loading ?(
                <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',flexDirection:'column',gap:4,placeItems:'center'}}> <CircularProgress/> Uploading Video...</div>
@@ -237,11 +236,15 @@ return (
                 </div>
                 <Button variant="contained" sx={{backgroundColor:'#9bdaf3',color:'#333',fontWeight:'700',textTransform:'capitalize',fontSize:'18px',width:{md:'12vw',xs:'130px'},'&:hover':{backgroundColor:'#9bdaf3'}}} onClick={handleSubmit}>Upload</Button>
             </Box>
-            <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
             </ThemeProvider>
         )}
         </Box>
-    </>
+        <Box sx={{display:'flex',flexDirection:'column',flexGrow:1}}>
+        <ThemeProvider theme={theme}>
+        <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
+        </ThemeProvider>
+        </Box>
+    </Box>
   )
 }
 
