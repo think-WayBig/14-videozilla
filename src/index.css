@@ -29,7 +29,7 @@ code {
     display: flex !important;
     gap: 15px !important;
     transform: none ;
-    width:75rem !important;
+    width:85rem !important;
 }
 
 .slick-list{
@@ -43,7 +43,7 @@ code {
   overflow: hidden ;
 }
 .slick-slide{
-  width: auto !important;
+  width: 330px !important;
 }
 
 .loginSignupLink:hover{
@@ -53,4 +53,35 @@ code {
 .slick-arrow{
   color:#fff !important;
   padding:0px 10px !important; 
+}
+header{
+  background-color: #1a202c !important;
+  box-shadow: none !important;
+  color:#fff !important;
+}
+
+.reactPlayer video{
+  
+  background :linear-gradient(4deg, black, transparent);
+}
+
+@media screen and (max-width: 890px){
+  .slick-slide{
+    width: 280px !important;
+  }
+}
+
+/* ::selection{
+  background-color: #404551;
+  color:'#000';
+} */
+::-webkit-scrollbar {
+  width: 5px;
+  background: #f0f1f3;
+  border: 0px none #ffffff;
+  border-radius: 0px
+}
+
+::-webkit-scrollbar-thumb{
+  background: #495875;
 }

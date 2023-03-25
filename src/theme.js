@@ -7,9 +7,16 @@ const theme = createTheme({
           root:{
           color:'#fff',
           backgroundColor:'#1a202c',
+          padding:'0px'
           },
           boxShadow:'none',
-          
+        }
+      },
+      MuiTab:{
+        root:{
+          '&.Mui-selected': {
+            color: '#ff470f', // replace with your desired selected text color
+          },
         }
       }
     },
@@ -22,6 +29,7 @@ const theme = createTheme({
       },
       background: {
         default: '#1a202c',
+        autofill: '#1a202c'
       },
       
     },

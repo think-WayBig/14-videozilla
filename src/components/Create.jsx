@@ -17,7 +17,9 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useNavigate } from 'react-router-dom';
 import { storage } from '../firebase';
 import db from '../firebase';
+import Snackbar from '@mui/material/Snackbar';
 import { setDoc,doc } from "firebase/firestore";
+import { v4 } from "uuid";
 
 import {
     ref,
@@ -76,6 +78,14 @@ const theme = createTheme({
             },
         },
         },
+        MuiSnackbar: {
+          styleOverrides:{
+            root: {
+              bottom:'0px' ,
+              width :'250px'
+            },
+          }
+        },
         MuiInput: {
           styleOverrides: {
             input: {
@@ -102,6 +112,17 @@ function Create() {
     const [loading, setLoading] = React.useState(false);
     const navigate = useNavigate();
     const userId = localStorage.getItem("uId");
+    const [snackbar, setSnackbar] = React.useState({
+      open: false,
+      message: '',
+    });
+    
+    const handleSnackbarClose = () => {
+      setSnackbar({
+        ...snackbar,
+        open: false,
+      });
+    };
 
     const handleChange = (event) => {
         setCategory(event.target.value);
@@ -111,32 +132,58 @@ function Create() {
 
     const handleFileSelect = (acceptedFiles) => {
         const file = acceptedFiles[0];
-        if (file.type.includes("video/")) {
+        if (file.type.includes("video/mp4")) {
           setSelectedFile(file);
         } else {
-          alert("Please upload a video file.");
+          alert("Please upload a .mp4 file.");
         }
       };
 
+    const playerConfig = {
+      file: {
+        attributes: {
+          controlsList: "nodownload",
+        },
+      },
+    };
 
     const handleSubmit = async (e) => {
-        setLoading(true);
-        e.preventDefault();
-        if (selectedFile == null) {alert("Please choose a file first!")};
-        const videoRef = ref(storage, `/videos/${selectedFile.name}`);
-        await uploadBytesResumable(videoRef, selectedFile);
-        const downloadURL = await getDownloadURL(videoRef);
-        await setDoc(doc(db, "videos", `${Date.now()}`), {
-            title,
-            category,
-            id : `${Date.now()}`,
-            videoURL: downloadURL,
-            userId 
+      if(userId !== null){
+        if (title=="") {
+          setSnackbar({
+            open: true,
+            message: 'Title is required.',
           });
-        
-            alert("Video uploaded successfully");
-            navigate('/');
-            setLoading(false);
+          return;
+        }
+          setLoading(true);
+          e.preventDefault();
+          const id = Date.now();
+          if (selectedFile == null) {alert("Please choose a file first!"); setLoading(false)};
+          const fileName = selectedFile.name+v4();
+          const videoRef = ref(storage, `/videos/${fileName}`);
+          await uploadBytesResumable(videoRef, selectedFile);
+          const downloadURL = await getDownloadURL(videoRef);
+          await setDoc(doc(db, "videos", id), {
+              title,
+              category,
+              id ,
+              videoURL: downloadURL,
+              videoName : fileName,
+              userId ,
+              views : 0
+            });
+            setSnackbar({
+              open: true,
+              message: 'Video uploaded successfully',
+            });
+              // alert("Video uploaded successfully");
+              navigate('/');
+              setLoading(false);
+      }else{
+        navigate('/login');
+      }
+      
       };
 
 return (
@@ -145,9 +192,10 @@ return (
         {loading ?(
                <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',flexDirection:'column',gap:4,placeItems:'center'}}> <CircularProgress/> Uploading Video...</div>
         ) :(
+          <ThemeProvider theme={theme}>
             <Box sx={{border:'1px solid #fff',padding:'16px',borderRadius:'6px',color:'#fff', display:'flex', gap:4,flexDirection:'column'}}>
-            <ThemeProvider theme={theme}>
-                <TextField id="standard-basic" label="Title" variant="standard" value={title} onChange={(e) => setTitle(e.target.value)} />
+            
+                <TextField autoComplete='off' id="standard-basic" label="Title" variant="standard" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <FormControl fullWidth >
                     <InputLabel id="demo-simple-select-label">Category</InputLabel>
                     <Select
@@ -159,17 +207,17 @@ return (
                     >
                     <MenuItem value={'Games'}>Games</MenuItem>
                     <MenuItem value={'Funny'}>Funny</MenuItem>
+                    <MenuItem value={'Music'}>Music</MenuItem>
                     <MenuItem value={'Movies'}>Movies</MenuItem>
                     <MenuItem value={'Animals'}>Animals</MenuItem>
-                    <MenuItem value={'Music'}>Music</MenuItem>
                     <MenuItem value={'Nature'}>Nature</MenuItem>
                     </Select>
                 </FormControl>
                 
                 <div className='MuiDropzoneArea-root'>
                     <div style={{ margin: "20px 0", width:'100%'}}>
-                    {selectedFile ? <Paper className="paper" style={{background:'transparent',display:'flex',justifyContent:'center',boxShadow:'none'}}>
-                                        <ReactPlayer url={URL.createObjectURL(selectedFile)} controls={true} />
+                    {selectedFile ? <Paper className="paper" style={{background:'transparent',display:'flex',justifyContent:'center',boxShadow:'none',width:'auto'}}>
+                                        <ReactPlayer className='reactPlayer' url={URL.createObjectURL(selectedFile)} controls={true} style={{display:'flex',height:'auto',padding:'0 20px'}} config={playerConfig}/>
                                     </Paper>
                                   : <Dropzone onDrop={handleFileSelect}>
                                         {({ getRootProps, getInputProps }) => (
@@ -188,8 +236,9 @@ return (
                     </div>
                 </div>
                 <Button variant="contained" sx={{backgroundColor:'#9bdaf3',color:'#333',fontWeight:'700',textTransform:'capitalize',fontSize:'18px',width:{md:'12vw',xs:'130px'},'&:hover':{backgroundColor:'#9bdaf3'}}} onClick={handleSubmit}>Upload</Button>
-            </ThemeProvider>
             </Box>
+            <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
+            </ThemeProvider>
         )}
         </Box>
     </>

@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
 import db from '../firebase';
 import { setDoc,doc,query,where,getDocs,collection } from "firebase/firestore";
 import Snackbar from '@mui/material/Snackbar';
@@ -100,7 +100,11 @@ const theme = createTheme({
             '&:hover:not(.Mui-disabled):before': {
               borderBottom: '1px solid #ffffffab', // color of the before pseudo-element on hover
             },
-            
+            '&:-internal-autofill-selected': {
+              appearance: 'menulist-button',
+              backgroundImage: 'none',
+              backgroundColor: '#1a202c',
+            },
           },
       },
     },
@@ -108,6 +112,7 @@ const theme = createTheme({
 });
 
 export default function SignUp() {
+    const navigate = useNavigate();
     const [name, setName] = React.useState([]);
     const [email, setEmail] = React.useState([]);
     const [password, setPassword] = React.useState([]);
@@ -165,7 +170,9 @@ export default function SignUp() {
       open: true,
       message: 'Registration Successful.',
     });
-    localStorage.setItem('uId',uId);}
+    localStorage.setItem('uId',uId);
+    setTimeout(function() {navigate('/login')},2000);
+  }
   };
 
   return (
@@ -196,6 +203,7 @@ export default function SignUp() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
+              autoComplete='off'
             />
             <TextField
             margin="normal"
@@ -205,6 +213,7 @@ export default function SignUp() {
             label="Email Address"
             type='email'
             name="email"
+            autoComplete='off'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -214,6 +223,7 @@ export default function SignUp() {
               fullWidth
               name="password"
               label="Password"
+              autoComplete='off'
               type="password"
               id="password"
               value={password}

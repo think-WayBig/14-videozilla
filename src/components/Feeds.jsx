@@ -1,22 +1,17 @@
 import { useLocation, useParams } from "react-router-dom";
 import * as React from 'react'
-import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea } from '@mui/material';
 import db from '../firebase';
 import { collection, getDocs, query, where} from "firebase/firestore";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { useNavigate } from 'react-router-dom';
-
+import CardComponent from "./CardComponent";
+import Category from './Category';
 
 function Feeds() {
   const [feeds, setFeeds] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const { categoryId } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     async function fetchFeeds() {
@@ -31,8 +26,26 @@ function Feeds() {
           ...doc.data(),
         };
       });
-      setFeeds(fetchedFeeds);
-      setLoading(false);
+       // Retrieve user data for each video
+    const userIds = fetchedFeeds.map((feed) => feed.userId);
+    const usersRef = collection(db, "users");
+    if(userIds.length > 0) {
+      const usersQuery = query(usersRef, where("userId", "in", userIds)) ;
+      const usersSnapshot = await getDocs(usersQuery);
+      const usersData = usersSnapshot.docs.map((doc) => doc.data());
+  
+      // Map video data to include user's name
+      const feedsWithUsers = fetchedFeeds.map((feed) => {
+        const user = usersData.find((user) => user.userId === feed.userId);
+        return {
+          ...feed,
+          user,
+        };
+      });
+      setFeeds(feedsWithUsers);
+      
+    }
+    setLoading(false);
     }
     fetchFeeds();
   }, [categoryId, location]);
@@ -41,60 +54,31 @@ function Feeds() {
     return feeds.filter((feed) => feed.category === categoryId);
   }, [feeds, categoryId]);
 
-  const handleCardClick = (videoId) => {
-    navigate('../videoDetail/' + videoId);
-  };
-
+  
   return (
-    <>
+    <Box sx={{flexGrow:1}}>
+    <Box sx={{padding:'10px' , display:'flex', justifyContent:'center',flexWrap:'wrap',margin:'-30px 0 40px 0'}}>
+           <Category/>   
+    </Box>
       {loading ? (
         <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
       ) : (
         <>
-        <Box  sx={{display:'flex',flexWrap:'wrap',gap:'20px',padding:{md:"20px 25px",xs:'20px 0px'}}}>
+        <Box  sx={{display:'flex',flexWrap:'wrap',gap:'10px 20px',padding:{md:"20px 0",xs:'20px 0px'},justifyContent:{md:'start',xs:'center'}}}>
             {categoryId ? (
               filteredFeeds.map((feed) => (
-                <Card key={feed.id} onClick={()=>{handleCardClick(feed.id)}} sx={{ maxWidth: 300, boxShadow:'0px 5px 10px -3px rgb(0 0 0 / 15%)', backgroundColor:"#1a202c",borderRadius:'6px'}} >
-                    <CardActionArea sx={{overflow:'hidden', "&:hover":{opacity:1}}} >
-                        <CardMedia
-                        component="video"
-                        alt="green iguana"
-                        sx={{"&:hover":{transform:'scale3d(1.05, 1.05, 1.05)',overflow:'hidden',opacity:1},background:"#1a202c", transition: "all 0.15s ease-in-out",border:'none',margin:'0px'}}
-                        src={feed.videoURL}
-                        
-                        />
-                    </CardActionArea>
-                    <CardContent sx={{ padding:'10px 0 0',boxShadow : 'none' ,borderEndEndRadius:'4px',backgroundColor:'#171923'}}>
-                        <p style={{fontSize:'18px',padding:'0 15px',textAlign:'left', fontWeight:500, height:'24px',color:"#fff",overflow:'hidden', margin:'5px 0 0'}} >
-                        {feed.title}
-                        </p>
-                    </CardContent>
-                </Card>
+                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
+                    
               ))
             ) : (
               feeds.map((feed) => (
-                <Card key={feed.id} onClick={()=>{handleCardClick(feed.id)}}  sx={{ maxWidth: 300, boxShadow:'0px 5px 10px -3px rgb(0 0 0 / 15%)', backgroundColor:"#1a202c",borderRadius:'6px'}} >
-                    <CardActionArea sx={{overflow:'hidden', "&:hover":{opacity:1}}} >
-                        <CardMedia
-                        component="video"
-                        alt="green iguana"
-                        sx={{"&:hover":{transform:'scale3d(1.05, 1.05, 1.05)',overflow:'hidden',opacity:1},background:"#1a202c", transition: "all 0.15s ease-in-out",border:'none',margin:'0px'}}
-                        src={feed.videoURL}
-                        
-                        />
-                    </CardActionArea>
-                    <CardContent sx={{ padding:'10px 0 0',boxShadow : 'none' ,borderEndEndRadius:'4px',backgroundColor:'#171923'}}>
-                    <p style={{fontSize:'18px',padding:'0 15px',textAlign:'left', fontWeight:500, height:'24px',color:"#fff",overflow:'hidden', margin:'5px 0 0'}} >
-                        {feed.title}
-                    </p>
-                    </CardContent>
-                </Card>
+                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
               ))
             )}
           </Box>
         </>
       )}
-    </>
+    </Box>
   );
 }
 
