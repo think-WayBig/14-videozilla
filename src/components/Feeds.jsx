@@ -67,12 +67,12 @@ function Feeds() {
         <Box  sx={{display:'flex',flexWrap:'wrap',gap:'10px 20px',padding:{md:"20px 0",xs:'20px 0px'},justifyContent:{md:'start',xs:'center'}}}>
             {categoryId ? (
               filteredFeeds.map((feed) => (
-                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
+                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} thumbnailURL={feed.thumbnailURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
                     
               ))
             ) : (
               feeds.map((feed) => (
-                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
+                <CardComponent key={feed.id} id={feed.id} videoURL={feed.videoURL} thumbnailURL={feed.thumbnailURL} title={feed.title} userName={feed.user.name} views={feed.views}/>
               ))
             )}
           </Box>

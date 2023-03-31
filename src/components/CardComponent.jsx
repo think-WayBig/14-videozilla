@@ -12,6 +12,19 @@ import { useNavigate } from 'react-router-dom';
 
 function CardComponent(props) {
     const navigate = useNavigate();
+    const [isHovering, setIsHovering] = React.useState(false);
+
+    const handleMouseEnter = (e) => {
+      setIsHovering(true);
+      e.target.play();
+    };
+  
+    const handleMouseLeave = (e) => {
+      setIsHovering(false);
+      e.target.currentTime=0;
+      e.target.pause();
+    };
+
     const handleCardClick = (videoId) => {
         navigate('../videoDetail/' + videoId);
       };
@@ -26,20 +39,20 @@ function CardComponent(props) {
     const yearsDiff = Math.floor(daysDiff / 365);
     
     if (yearsDiff > 0) {
-  return `${yearsDiff} year${yearsDiff > 1 ? "s" : ""} ago`;
-} else if (monthsDiff > 0) {
-  return `${monthsDiff} month${monthsDiff > 1 ? "s" : ""} ago`;
-} else if (weeksDiff > 0) {
-  return `${weeksDiff} week${weeksDiff > 1 ? "s" : ""} ago`;
-} else if (daysDiff > 0) {
-  return `${daysDiff} day${daysDiff > 1 ? "s" : ""} ago`;
-} else if (hoursDiff > 0) {
-  return `${hoursDiff} hour${hoursDiff > 1 ? "s" : ""} ago`;
-} else if (minutesDiff > 0) {
-  return `${minutesDiff} minute${minutesDiff > 1 ? "s" : ""} ago`;
-} else {
-  return "Just now";
-}
+      return `${yearsDiff} year${yearsDiff > 1 ? "s" : ""} ago`;
+    } else if (monthsDiff > 0) {
+      return `${monthsDiff} month${monthsDiff > 1 ? "s" : ""} ago`;
+    } else if (weeksDiff > 0) {
+      return `${weeksDiff} week${weeksDiff > 1 ? "s" : ""} ago`;
+    } else if (daysDiff > 0) {
+      return `${daysDiff} day${daysDiff > 1 ? "s" : ""} ago`;
+    } else if (hoursDiff > 0) {
+      return `${hoursDiff} hour${hoursDiff > 1 ? "s" : ""} ago`;
+    } else if (minutesDiff > 0) {
+      return `${minutesDiff} minute${minutesDiff > 1 ? "s" : ""} ago`;
+    } else {
+      return "Just now";
+    }
 
 }
 
@@ -67,6 +80,8 @@ function CardComponent(props) {
         <CardMedia
           component="video"
           alt="green iguana"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           sx={{
             "&:hover": {
               transform: "scale3d(1.05, 1.05, 1.05)",
@@ -82,6 +97,8 @@ function CardComponent(props) {
             height: { md: "190px", xs: "160px" },
           }}
           src={props.videoURL}
+          poster={props.thumbnailURL}
+          muted
         />
       </CardActionArea>
       <CardContent
@@ -119,6 +136,7 @@ function CardComponent(props) {
               color: "#fff",
               overflow: "hidden",
               margin: "5px 0",
+              textTransform: 'capitalize'
             }}
           >
             {props.title}

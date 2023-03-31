@@ -1,19 +1,12 @@
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import db from "../firebase";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CardComponent from "./CardComponent";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
-import Avatar from '@mui/material/Avatar';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 const theme = createTheme({
   components: {
@@ -32,7 +25,6 @@ function UserDetails() {
   const [loading, setLoading] = React.useState(true);
   const { user } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const [snackbar, setSnackbar] = React.useState({
     open: false,
     message: "",
@@ -110,7 +102,7 @@ function UserDetails() {
               height: { md: "200px", xs: "130px" },
               overflow: "hidden",
               padding: { md: "0px", xs: "0px 20px" },
-              marginBottom:'20px'
+              marginBottom: "20px",
             }}
           >
             <img
@@ -148,6 +140,7 @@ function UserDetails() {
                   key={feed.id}
                   id={feed.id}
                   videoURL={feed.videoURL}
+                  thumbnailURL={feed.thumbnailURL}
                   title={feed.title}
                   views={feed.views}
                   userName={feed.name}
@@ -159,11 +152,12 @@ function UserDetails() {
           </Box>
           <Box
             sx={{
-              width: "100%",
-              display: "grid",
-              placeItems: "end",
-              flexGrow: 1,
+              display: "flex",
               justifyContent: "center",
+              width: "100%",
+              position: "fixed",
+              bottom: "24px",
+              zIndex: "1",
             }}
           >
             <ThemeProvider theme={theme}>
@@ -173,7 +167,7 @@ function UserDetails() {
                 autoHideDuration={2000}
                 onClose={handleSnackbarClose}
                 anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                sx={{ display: "block", position: "relative" }}
+                sx={{ display: "block", position: "sticky" }}
               />
             </ThemeProvider>
           </Box>

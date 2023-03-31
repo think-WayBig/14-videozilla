@@ -27,12 +27,12 @@ const theme = createTheme({
 
 const icons=[
     {iconName : 'All' , path : '../', title : 'All'},
-    {iconName : 'Games' , path : '../category/Games', title : 'Games'},
-    {iconName : 'Funny' , path : '../category/Funny', title : 'Funny'},
-    {iconName : 'Music', path : '../category/Music', title : 'Music'},
-    {iconName :  'Movies', path : '../category/Movies', title : 'Movies'},
-    {iconName :  'Animals', path : '../category/Animals', title : 'Animals'},
-    {iconName :  'Nature', path : '../category/Nature', title : 'Nature'}
+    {iconName : 'Games' , path : '../category/games', title : 'Games'},
+    {iconName : 'Funny' , path : '../category/funny', title : 'Funny'},
+    {iconName : 'Music', path : '../category/music', title : 'Music'},
+    {iconName :  'Movies', path : '../category/movies', title : 'Movies'},
+    {iconName :  'Animals', path : '../category/animals', title : 'Animals'},
+    {iconName :  'Nature', path : '../category/nature', title : 'Nature'}
 ]
 
 function Category() {

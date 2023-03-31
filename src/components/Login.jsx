@@ -247,10 +247,30 @@ export default function Login() {
           <Copyright sx={{ mt: 2, mb: 4 }} />
         </Box>
         
-      <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
       </Container>
     </ThemeProvider>
     </Box>
+    <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              position: "fixed",
+              bottom: "24px",
+              zIndex: "1",
+            }}
+          >
+            <ThemeProvider theme={theme}>
+              <Snackbar
+                open={snackbar.open}
+                message={snackbar.message}
+                autoHideDuration={2000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                sx={{ display: "block", position: "sticky" }}
+              />
+            </ThemeProvider>
+          </Box>
     </Box>
   );
 }

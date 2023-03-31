@@ -16,6 +16,22 @@ import MoreIcon from '@mui/icons-material/MoreVert';
 import LoginIcon from '@mui/icons-material/Login';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 // import logo from '../../src/img/logo.751bfa4655891153aaf8.png';
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Snackbar from "@mui/material/Snackbar";
+import DialogComponent from './DialogComponent';
+
+const theme = createTheme({
+  components: {
+    MuiSnackbar: {
+      styleOverrides: {
+        root: {
+          bottom: "0px",
+          minWidth: "250px",
+        },
+      },
+    },
+  },
+});
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -60,6 +76,25 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Navbar() {
 const uId = localStorage.getItem('uId');
 const [searchValue, setSearchValue] = React.useState([]);
+const [snackbar, setSnackbar] = React.useState({
+  open: false,
+  message: "",
+});
+const [open, setOpen] = React.useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleClickOpen = () =>{
+      setOpen(true);
+  };
+
+const handleSnackbarClose = () => {
+  setSnackbar({
+    ...snackbar,
+    open: false,
+  });
+};
 const handleSearchChange = (event) => {
   setSearchValue(event.target.value);
 };
@@ -95,6 +130,16 @@ const handleSearchKeyPress = async (event) => {
     handleMobileMenuClose();
   };
 
+  const logout = () =>{
+    setOpen(false);
+    localStorage.removeItem('uId');
+    setSnackbar({
+      open: true,
+      message: `Logout successful.`,
+    });
+    setTimeout(function() {navigate('/')},2000);
+  }
+
   const handleMyAccount = (uId) => {
     navigate('./profile/'+ uId)
   };
@@ -128,9 +173,10 @@ const handleSearchKeyPress = async (event) => {
         },
       }}
     >
-  <MenuItem style={{display:'flex',justifyContent:'flex-start',padding:'6px 16px'}} onClick={()=>handleMyAccount(`${uId}`)}>My account</MenuItem>
-      <MenuItem style={{display:'flex',justifyContent:'flex-start',padding:'6px 16px'}} onClick={()=>{handleMenuClose(); localStorage.removeItem('uId');setTimeout(function() {navigate('/')},1000);}}>Logout</MenuItem>
-    </Menu>
+    <MenuItem style={{display:'flex',justifyContent:'flex-start',padding:'6px 16px'}} onClick={()=>handleMyAccount(`${uId}`)}>My account</MenuItem>
+    <MenuItem style={{display:'flex',justifyContent:'flex-start',padding:'6px 16px'}} onClick={()=>{handleMenuClose(); handleClickOpen();}}>Logout</MenuItem>
+    <DialogComponent open={open} handleClose={handleClose} title="Are you sure you want to logout?" btn1="Cancel" btn2="Logout" handlefunction={logout} />
+  </Menu>
   );
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
@@ -174,14 +220,21 @@ const handleSearchKeyPress = async (event) => {
         </IconButton>
         <p style={{color:'#000000de'}}>Signup</p>
       </MenuItem></Link></> : " "}
-      <Link to='/create' style={{textDecoration:'none'}}><MenuItem sx={{padding:'0px 16px'}}>
+      {uId == null ? <Link to='/login' style={{textDecoration:'none'}}><MenuItem sx={{padding:'0px 16px'}}>
       <IconButton
       size="large"
             color="inherit">
             <AddBoxIcon  sx={{color:'#000000de'}}/>
         </IconButton>
         <p style={{color:'#000000de'}}>Create</p>
-      </MenuItem></Link>
+      </MenuItem></Link> : <Link to='/create' style={{textDecoration:'none'}}><MenuItem sx={{padding:'0px 16px'}}>
+      <IconButton
+      size="large"
+            color="inherit">
+            <AddBoxIcon  sx={{color:'#000000de'}}/>
+        </IconButton>
+        <p style={{color:'#000000de'}}>Create</p>
+      </MenuItem></Link> }
       {uId !== null ? <MenuItem onClick={handleProfileMenuOpen} sx={{padding:'0px 16px'}}>
         <IconButton
           size="large"
@@ -199,6 +252,7 @@ const handleSearchKeyPress = async (event) => {
   
 
   return (
+    <>
     <Box sx={{ flexGrow: 1,backgroundColor:"#1a202c"}}>
       <AppBar position="static" sx={{backgroundColor: '#1a202c', boxShadow:'none' , padding:{md:'16px',xs:'16px 0px'}}}>
         <Toolbar sx={{backgroundColor:'#1a202c'}}>
@@ -219,7 +273,7 @@ const handleSearchKeyPress = async (event) => {
               inputProps={{ 'aria-label': 'search' }}
                />
           </Search>
-          </Box>
+        </Box>
           
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } , justifyContent:'end'}}>
@@ -230,7 +284,9 @@ const handleSearchKeyPress = async (event) => {
             : ""}
             <IconButton
               color="inherit" sx={{display:'flex'}}>
-                <Link to='/create' style={{display:'flex'}} title="Create"><AddBoxIcon sx={{fontSize: '1.8em !important',color:'#fff'}}/></Link>
+                {uId==null? <Link to='/login' style={{display:'flex'}} title="Create"><AddBoxIcon sx={{fontSize: '1.8em !important',color:'#fff'}}/></Link>
+                : <Link to='/create' style={{display:'flex'}} title="Create"><AddBoxIcon sx={{fontSize: '1.8em !important',color:'#fff'}}/></Link>
+                }
             </IconButton>
             { uId==null ? "" : <IconButton
               aria-label="account of current user"
@@ -260,6 +316,20 @@ const handleSearchKeyPress = async (event) => {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
+      
     </Box>
+    <Box sx={{display:'flex',justifyContent:'center',width:'100%',position:'fixed',bottom:'24px',zIndex:'1'}}>
+    <ThemeProvider theme={theme}>
+    <Snackbar
+      open={snackbar.open}
+      message={snackbar.message}
+      autoHideDuration={2000}
+      onClose={handleSnackbarClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      sx={{ display: "block", position: "sticky" }}
+    />
+    </ThemeProvider>
+    </Box>
+    </>
   );
 }

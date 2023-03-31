@@ -1,115 +1,39 @@
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import db from '../firebase';
-import { collection, doc, getDocs, query, updateDoc, where} from "firebase/firestore";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import db from "../firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CardComponent from "./CardComponent";
-import Button from '@mui/material/Button';
-import EditIcon from '@mui/icons-material/Edit';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Snackbar from '@mui/material/Snackbar';
-
+import EditIcon from "@mui/icons-material/Edit";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Snackbar from "@mui/material/Snackbar";
+import DialogComponent from "./DialogComponent";
+import { storage } from "../firebase";
+import { v4 } from "uuid";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 
 const theme = createTheme({
-  components:{
-    MuiInputLabel: {
+  components: {
+    MuiSnackbar: {
       styleOverrides: {
-        input: {
-            color: '#fff', // red input color
-          },
-          root: {
-              '&:before': {
-                color:'#fff' // color of the before pseudo-element
-              },
-              '&:after': {
-                color:'#fff' // color of the after pseudo-element
-              },
-              '&:hover:not(.Mui-disabled):before': {
-                color:'#fff' // color of the before pseudo-element on hover
-              },
-              '&.Mui-focused': {
-                color:'#fff' // color of the before pseudo-element when focused
-              },
-              color:'#fff',
-            },
+        root: {
+          bottom: "0px",
+          minWidth: "250px",
+        },
       },
     },
-    MuiOutlinedInput: {
-      styleOverrides: {
-          notchedOutline: {
-          borderColor: '#fff', // blue color
-          },
-          root: {
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#fff', // blue color
-              },
-              '&:(.Mui-focused) .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#fff', // blue color
-              }, 
-          },
-      },
-      },
-      MuiInput: {
-        styleOverrides: {
-          input: {
-            color: '#fff', // red input color
-          },
-          root: {
-              '&:before': {
-                borderBottom: '1px solid #fff', // color of the before pseudo-element
-              },
-              
-              '&:hover:not(.Mui-disabled):before': {
-                borderBottom: '1px solid #fff', // color of the before pseudo-element on hover
-              },
-              
-            },
-        },
-      },
-      MuiBackdrop: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "rgba(0, 0, 0, 0.36)" // Change the background color of MuiBackdrop-root
-          }
-        }
-      },
-      MuiDialog: {
-        styleOverrides: {
-          backdrop: {
-            backgroundColor: "rgba(0, 0, 0, 0.36)" // Change the background color of MuiDialog-backdrop
-          }
-        }
-      },
-      MuiPaper: {
-        defaultProps: {
-          elevation: 0, // to remove box-shadow
-        },
-      },
-      MuiDialog: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: '#1a202c',
-            width:'70%',
-            color:'#ded8d8',
-            boxShadow: 'none', // to remove box-shadow
-          },
-        },
-      },
-      MuiSnackbar: {
-        styleOverrides:{
-          root: {
-            bottom:'0px' ,
-            minWidth :'250px'
-          },
-        }
-      },
-  }
+  },
 });
 function UserProfile() {
   const [feeds, setFeeds] = React.useState([]);
@@ -117,15 +41,17 @@ function UserProfile() {
   const { uId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const userId = localStorage.getItem('uId');
+  const userId = localStorage.getItem("uId");
   const [open, setOpen] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState([]);
   const [videoId, setVideoId] = React.useState("");
   const [snackbar, setSnackbar] = React.useState({
     open: false,
-    message: '',
+    message: "",
   });
-  
+  const [thumbnail, setThumbnail] = React.useState(null);
+
+
   const handleSnackbarClose = () => {
     setSnackbar({
       ...snackbar,
@@ -142,19 +68,62 @@ function UserProfile() {
     setOpen(false);
   };
 
-  const handleUpdate = async () =>{
+  const handleUpdate = async () => {
     try {
       setLoading(true);
-      const videoDocRef = doc(collection(db, "videos"), videoId);
-      await updateDoc(videoDocRef, { title: newTitle });
-      setSnackbar({
-        open: true,
-        message: 'Title updated successfully!',
-      });
-      setOpen(false);
-      navigate('../profile/'+ uId)
-      setLoading(false);
+      if(thumbnail){
+      const thumbnailFileName = thumbnail.name + v4();
+      const thumbnailRef = ref(storage, `/thumbnails/${thumbnailFileName}`);
       
+      if(thumbnailRef && newTitle.length !== 0){
+        const videoDocRef = doc(collection(db, "videos"), videoId);
+        const videoDoc = await getDoc(videoDocRef);
+        const prevThumbnailFileName = videoDoc.data().thumbnailFileName;
+        if (prevThumbnailFileName) {
+          const prevThumbnailRef = ref(storage, `/thumbnails/${prevThumbnailFileName}`);
+          await deleteObject(prevThumbnailRef); // delete the previous thumbnail image
+        }
+        await uploadBytesResumable(thumbnailRef, thumbnail);
+        const thumbnailDownloadURL = await getDownloadURL(thumbnailRef);
+        await updateDoc(videoDocRef, { 
+          title: newTitle.toLowerCase(),
+          thumbnailFileName,
+          thumbnailURL: thumbnailDownloadURL, });
+        setSnackbar({
+          open: true,
+          message: "Updated successfully!",
+        });
+      }
+      else if(thumbnailRef){
+        const videoDocRef = doc(collection(db, "videos"), videoId);
+        const videoDoc = await getDoc(videoDocRef);
+        const prevThumbnailFileName = videoDoc.data().thumbnailFileName;
+        if (prevThumbnailFileName) {
+          const prevThumbnailRef = ref(storage, `/thumbnails/${prevThumbnailFileName}`);
+          await deleteObject(prevThumbnailRef); // delete the previous thumbnail image
+        }
+        await uploadBytesResumable(thumbnailRef, thumbnail);
+        const thumbnailDownloadURL = await getDownloadURL(thumbnailRef);
+        await updateDoc(videoDocRef, { 
+          thumbnailFileName,
+          thumbnailURL: thumbnailDownloadURL, });
+        setSnackbar({
+          open: true,
+          message: "Updated successfully!",
+        });
+      }
+    }
+      else if(newTitle.length !== 0){
+        const videoDocRef = doc(collection(db, "videos"), videoId);
+        await updateDoc(videoDocRef, { title: newTitle.toLowerCase() });
+        setSnackbar({
+          open: true,
+          message: "Title updated successfully!",
+        });
+      }
+      setOpen(false);
+      navigate("../profile/" + uId);
+      setLoading(false);
     } catch (error) {
       setSnackbar({
         open: true,
@@ -163,13 +132,13 @@ function UserProfile() {
       setLoading(false);
       console.error("Error updating video title: ", error);
     }
-  }
+  };
 
   React.useEffect(() => {
-    if(userId === uId){
+    if (userId === uId) {
       async function fetchFeeds() {
         setLoading(true);
-        const q =  query(collection(db, "videos"), where("userId", "==", uId))
+        const q = query(collection(db, "videos"), where("userId", "==", uId));
         const querySnapshot = await getDocs(q);
         const fetchedFeeds = querySnapshot.docs.map((doc) => {
           return {
@@ -177,89 +146,174 @@ function UserProfile() {
             ...doc.data(),
           };
         });
-        const userIds = fetchedFeeds.map((feed)=>feed.userId);
+        const userIds = fetchedFeeds.map((feed) => feed.userId);
         const usersRef = collection(db, "users");
-        const usersQuery = query(usersRef, where("userId", "in", userIds)) ;
-      const usersSnapshot = await getDocs(usersQuery);
-      const usersData = usersSnapshot.docs.map((doc) => doc.data());
-  
-      // Map video data to include user's name
-      const feedsWithUsers = fetchedFeeds.map((feed) => {
-        const user = usersData.find((user) => user.userId === feed.userId);
-        return {
-          ...feed,
-          user,
-        };
-      });
-      setFeeds(feedsWithUsers);
+        const usersQuery = query(usersRef, where("userId", "in", userIds));
+        const usersSnapshot = await getDocs(usersQuery);
+        const usersData = usersSnapshot.docs.map((doc) => doc.data());
+
+        // Map video data to include user's name
+        const feedsWithUsers = fetchedFeeds.map((feed) => {
+          const user = usersData.find((user) => user.userId === feed.userId);
+          return {
+            ...feed,
+            user,
+          };
+        });
+        setFeeds(feedsWithUsers);
         setLoading(false);
       }
       fetchFeeds();
-    }
-    else{
+    } else {
       setSnackbar({
         open: true,
         message: "User not logged in",
       });
-      // alert("User Not Logged in");
-      navigate('/');
-      setLoading(false)
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+      setLoading(false);
     }
-    
   }, [uId, location]);
 
   const filteredFeeds = React.useMemo(() => {
     return feeds.filter((feed) => feed.userId === uId);
   }, [feeds, uId]);
 
-
   return (
     <>
       {loading ? (
-        <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
+        <div
+          style={{
+            width: "100%",
+            height: "60vh",
+            display: "flex",
+            justifyContent: "center",
+            placeItems: "center",
+          }}
+        >
+          {" "}
+          <CircularProgress />{" "}
+        </div>
       ) : (
         <>
-        <Box  sx={{display:'flex',flexWrap:'wrap',gap:'20px',padding:{md:"20px 25px",xs:'20px 0px'},justifyContent:{md:'left', xs:'center'}}}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "20px",
+              padding: { md: "20px 25px", xs: "20px 0px" },
+              justifyContent: { md: "left", xs: "center" },
+            }}
+          >
             {uId ? (
-              filteredFeeds.map((feed) => (<div key={feed.id}>
-                <CardComponent id={feed.id} videoURL={feed.videoURL} title={feed.title} views={feed.views} userName={feed.user.name} editIcon={<EditIcon onClick={()=>handleClickOpen(feed.id)} sx={{fontSize: '1.2rem',padding: '8px 5px', cursor:'pointer'}}/>} />
-                <ThemeProvider theme={theme}>
-                <Dialog open={open} onClose={handleClose}>
-                  <DialogTitle>Edit Title</DialogTitle>
-                  <DialogContent>
-                    
-                    <TextField
-                      autoFocus
-                      margin="dense"
-                      id="name"
-                      label="Title"
-                      type="text"
-                      fullWidth
-                      autoComplete="off"
-                      variant="standard"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                    />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleClose} sx={{color:'#ded8d8'}}>Close</Button>
-                    <Button onClick={handleUpdate} sx={{color:'#ded8d8'}}>Update</Button>
-                  </DialogActions>
-                </Dialog>
-           
-                </ThemeProvider>
+              filteredFeeds.map((feed) => (
+                <div key={feed.id}>
+                  <CardComponent
+                    id={feed.id}
+                    videoURL={feed.videoURL}
+                    thumbnailURL={feed.thumbnailURL}
+                    title={feed.title}
+                    views={feed.views}
+                    userName={feed.user.name}
+                    editIcon={
+                      <EditIcon
+                        onClick={() => handleClickOpen(feed.id)}
+                        sx={{
+                          fontSize: "1.2rem",
+                          padding: "8px 5px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    }
+                  />
+
+                  <DialogComponent
+                    open={open}
+                    handleClose={handleClose}
+                    title="Are you sure you want to delete?"
+                    btn1="Close"
+                    btn2="Update"
+                    handlefunction={handleUpdate}
+                    textfield={
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Title"
+                        type="text"
+                        fullWidth
+                        autoComplete="off"
+                        variant="standard"
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        sx={{marginBottom:'40px'}}
+                      />
+                    }
+                    uploadThumbnail={
+                      <Box sx={{ display: "flex", gap: "20px" }}>
+                        <Button
+                          variant="contained"
+                          component="label"
+                          onChange={(e) => setThumbnail(e.target.files[0])}
+                          sx={{
+                            backgroundColor: "#fff",
+                            color: "#333",
+                            fontWeight: "700",
+                            textTransform: "capitalize",
+                            fontSize: "16px",
+                            width: { md: "12vw", xs: "130px" },
+                            "&:hover": { backgroundColor: "#fff" },
+                          }}
+                        >
+                          Upload Thumbnail
+                          <input
+                            type="file"
+                            accept="image/jpg , image/jpeg"
+                            hidden
+                          />
+                        </Button>
+                        {thumbnail && (
+                          <img
+                            src={URL.createObjectURL(thumbnail)}
+                            alt="thumbnail"
+                            width="40px"
+                            height="40px"
+                            style={{ objectFit: "cover" }}
+                          />
+                        )}
+                        {/* <input type="file" onChange={(e) => setThumbnail(e.target.files[0])} /> */}
+                      </Box>
+                    }
+                  />
                 </div>
               ))
-              
             ) : (
               <p>No Doc Exists</p>
             )}
-            <ThemeProvider theme={theme}>
-                <Snackbar open={snackbar.open} message={snackbar.message} autoHideDuration={2000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{display:'block',position:'relative'}} />
-              </ThemeProvider>
           </Box>
         </>
       )}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          position: "fixed",
+          bottom: "24px",
+          zIndex: "1",
+        }}
+      >
+        <ThemeProvider theme={theme}>
+          <Snackbar
+            open={snackbar.open}
+            message={snackbar.message}
+            autoHideDuration={2000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            sx={{ display: "block", position: "sticky" }}
+          />
+        </ThemeProvider>
+      </Box>
     </>
   );
 }
