@@ -93,10 +93,12 @@ function Search() {
     {loading ? (
         <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
       ) : (
-        <Box  sx={{display:'flex',flexWrap:'wrap',gap:'20px',padding:{md:"20px 25px",xs:'20px 0px'}}}>
+        <Box sx={{flexGrow:1}}>
+        <Box  sx={{display:'flex',flexWrap:'wrap',gap:'20px',padding:{md:"20px 20px",xs:'20px 0px'}, justifyContent:{md:'left',xs:'center'}}}>
              {videos.map((video) => (
         <CardComponent key={video.id} id={video.id} videoURL={video.videoURL} thumbnailURL={video.thumbnailURL} title={video.title} userName={video.user.name} views={video.views}/>
       ))}
+        </Box>
         </Box>
         )}
     <Box sx={{display:'flex',justifyContent:'center',width:'100%',position:'fixed',bottom:'24px',zIndex:'1'}}>

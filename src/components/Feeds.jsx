@@ -5,7 +5,7 @@ import db from '../firebase';
 import { collection, getDocs, query, where} from "firebase/firestore";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CardComponent from "./CardComponent";
-import Category from './Category';
+// import Category from './Category';
 
 function Feeds() {
   const [feeds, setFeeds] = React.useState([]);
@@ -57,9 +57,9 @@ function Feeds() {
   
   return (
     <Box sx={{flexGrow:1}}>
-    <Box sx={{padding:'10px' , display:'flex', justifyContent:'center',flexWrap:'wrap',margin:'-30px 0 40px 0'}}>
+    {/* <Box sx={{padding:'10px' , display:'flex', justifyContent:'center',flexWrap:'wrap',margin:'-30px 0 40px 0'}}>
            <Category/>   
-    </Box>
+    </Box> */}
       {loading ? (
         <div style={{width:'100%',height:'60vh',display:'flex',justifyContent:'center',placeItems:'center'}}> <CircularProgress/> </div>
       ) : (

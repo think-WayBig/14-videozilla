@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   updateDoc,
   where,
@@ -22,6 +23,9 @@ import DialogComponent from "./DialogComponent";
 import { storage } from "../firebase";
 import { v4 } from "uuid";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import Avatar from "@mui/material/Avatar";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import { Typography } from "@mui/material";
 
 const theme = createTheme({
   components: {
@@ -147,21 +151,38 @@ function UserProfile() {
           };
         });
         const userIds = fetchedFeeds.map((feed) => feed.userId);
-        const usersRef = collection(db, "users");
-        const usersQuery = query(usersRef, where("userId", "in", userIds));
-        const usersSnapshot = await getDocs(usersQuery);
-        const usersData = usersSnapshot.docs.map((doc) => doc.data());
+        if(userIds.length > 0){
+          const usersRef = collection(db, "users");
+          const usersQuery = query(usersRef, where("userId", "in", userIds));
+          const usersSnapshot = await getDocs(usersQuery);
+          const usersData = usersSnapshot.docs.map((doc) => doc.data());
 
-        // Map video data to include user's name
-        const feedsWithUsers = fetchedFeeds.map((feed) => {
-          const user = usersData.find((user) => user.userId === feed.userId);
-          return {
-            ...feed,
-            user,
-          };
-        });
-        setFeeds(feedsWithUsers);
-        setLoading(false);
+          // Map video data to include user's name
+          const feedsWithUsers = fetchedFeeds.map((feed) => {
+            const user = usersData.find((user) => user.userId === feed.userId);
+            return {
+              ...feed,
+              user,
+            };
+          });
+          setFeeds(feedsWithUsers);
+          setLoading(false);
+        }else{
+          const userRef = doc(db, "users", uId);
+          const userSnapshot = await getDoc(userRef);
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            console.log([userData]);
+            setFeeds([userData]);
+            setLoading(false);
+            // Do something with the user data here...
+          } else {
+            // Handle the case when the document doesn't exist here...
+            setLoading(false);
+            alert('Please upload a feed');
+          }
+        }
+        
       }
       fetchFeeds();
     } else {
@@ -175,11 +196,20 @@ function UserProfile() {
       setLoading(false);
     }
   }, [uId, location]);
-
+  
   const filteredFeeds = React.useMemo(() => {
     return feeds.filter((feed) => feed.userId === uId);
   }, [feeds, uId]);
 
+  let videos =0;
+
+  if(filteredFeeds.length > 1) {
+    videos = `${filteredFeeds.length} videos`;
+  }else if(filteredFeeds.length = 1) {
+    videos = `${filteredFeeds.length} video`;
+  }else if(filteredFeeds.length < 0) {
+    videos = `0 video`;
+  }
   return (
     <>
       {loading ? (
@@ -197,6 +227,49 @@ function UserProfile() {
         </div>
       ) : (
         <>
+        <Box sx={{flexGrow:1}}>
+          <Box
+            sx={{
+              height: { md: "200px", xs: "130px" },
+              overflow: "hidden",
+              padding: { md: "0px", xs: "0px 20px" },
+              marginBottom: "20px",
+            }}
+          >
+            <img
+              src="https://images.pexels.com/photos/1723637/pexels-photo-1723637.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              alt=""
+              style={{ width: "100%" }}
+            />
+          </Box>
+          <Box sx={{padding:{md:'0px 40px',xs:'0px 40px'}, display:'flex', marginTop:'-47px',flexDirection:'column'}}>
+            <Box sx={{padding:'0px 15px'}}>
+            <Avatar
+            sx={{
+              m: 1,
+              bgcolor: "#c8c6c6",
+              color: "#000",
+              width: '55px',
+              height: "55px",
+              margin:'0 auto 20px'
+            }}
+          >
+            <PersonOutlineIcon sx={{ fontSize: "2.2rem" }} />
+          </Avatar>
+            </Box>
+          
+          <Box sx={{padding:'0px 15px', flexGrow:'1',display:'flex', gap:'8px',marginBottom:'20px', justifyContent:'center'}}>
+              {/* {feeds[0].name ? <Typography style={{textTransform:'capitalize',margin:'0px', fontWeight:'500'}}>{feeds[0].name}</Typography> : <Typography style={{textTransform:'capitalize',margin:'0px', fontWeight:'500'}}>{feeds[0].user.name}</Typography>} */}
+             <Typography style={{textTransform:'capitalize',margin:'0px', fontWeight:'500'}}>{feeds[0].name?feeds[0].name:feeds[0].user.name}</Typography> 
+              <span style={{borderRight:'1px solid #fff'}}></span>
+              <Typography style={{textTransform:'capitalize',margin:'0px', fontWeight:'500'}}>{feeds[0].name? "0 video" : videos}</Typography>
+
+          </Box>
+          </Box>
+          {/* <Box sx={{}}>
+            <Typography style={{margin:'20px 0px'}}> Videos</Typography>
+            <hr />
+          </Box> */}
           <Box
             sx={{
               display: "flex",
@@ -207,7 +280,7 @@ function UserProfile() {
             }}
           >
             {uId ? (
-              filteredFeeds.map((feed) => (
+              filteredFeeds.map((feed) => {return feed.title ?
                 <div key={feed.id}>
                   <CardComponent
                     id={feed.id}
@@ -215,7 +288,7 @@ function UserProfile() {
                     thumbnailURL={feed.thumbnailURL}
                     title={feed.title}
                     views={feed.views}
-                    userName={feed.user.name}
+                    userName={feeds[0].user ? feeds[0].user.name : null}
                     editIcon={
                       <EditIcon
                         onClick={() => handleClickOpen(feed.id)}
@@ -285,11 +358,14 @@ function UserProfile() {
                       </Box>
                     }
                   />
-                </div>
-              ))
+                </div>:
+                  <p style={{textAlign:'center', flexGrow:'1'}}>0 videos uploaded</p>
+                
+              })
             ) : (
               <p>No Doc Exists</p>
             )}
+          </Box>
           </Box>
         </>
       )}

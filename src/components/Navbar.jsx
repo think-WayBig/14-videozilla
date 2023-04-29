@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
+import TextField from "@mui/material/TextField";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -19,6 +20,11 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
 import DialogComponent from './DialogComponent';
+import Category from './Category';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from "@mui/material/Drawer";
+import CloseIcon from "@mui/icons-material/Close";
+import Divider from "@mui/material/Divider";
 
 const theme = createTheme({
   components: {
@@ -76,6 +82,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Navbar() {
 const uId = localStorage.getItem('uId');
 const [searchValue, setSearchValue] = React.useState([]);
+const [openDrawer, setStateDrawer] = React.useState(false);
+
+  
+  /*
+  function that is being called every time the drawer should open or close,
+  the keys tab and shift are excluded so the user can focus between
+  the elements with the keys
+  */
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    //changes the function state according to the value of open
+    setStateDrawer(open);
+  };
+
 const [snackbar, setSnackbar] = React.useState({
   open: false,
   message: "",
@@ -88,6 +110,15 @@ const [open, setOpen] = React.useState(false);
   const handleClickOpen = () =>{
       setOpen(true);
   };
+
+const [open2, setOpen2] = React.useState(false);
+const handleClose2 = () => {
+  setOpen2(false);
+};
+
+const handleClickOpen2 = () =>{
+    setOpen2(true);
+};
 
 const handleSnackbarClose = () => {
   setSnackbar({
@@ -107,6 +138,7 @@ const handleSearchKeyPress = async (event) => {
       search: `title=${searchValue}`,
     };
     navigate(newLocation);
+    setOpen2(false);
   }
 };
 
@@ -256,11 +288,76 @@ const handleSearchKeyPress = async (event) => {
     <Box sx={{ flexGrow: 1,backgroundColor:"#1a202c"}}>
       <AppBar position="static" sx={{backgroundColor: '#1a202c', boxShadow:'none' , padding:{md:'16px',xs:'16px 0px'}}}>
         <Toolbar sx={{backgroundColor:'#1a202c'}}>
-          <Box sx={{marginRight:'0px',display:"flex"}}>
+
+          <Box sx={{marginRight:'0px',display:{md:"flex", xs:'none'}, flexGrow:{xs:1,md:'0.1'}, justifyContent:{md:'left', xs:'center'}}}>
           {/* <Link to='/'><img src={logo} width="150px" alt='logo' title='Home'/></Link> */}
             <Link to='/' style={{color:'inherit',textDecoration:'none'}}><p title='Home' style={{fontSize:'1.6rem',margin:'0px'}}>VideoZilla</p></Link>
           </Box>
-          <Box sx={{flexGrow:1,justifyContent:'center',display:'flex'}}>
+          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+            
+            <IconButton 
+              edge="end" 
+              color="#07294d" 
+              aria-label="open drawer" 
+              onClick={toggleDrawer(true)}
+              sx={{ 
+                
+                display: {
+                  xs: 'block',
+                  md: 'none',
+                },
+                color:"#fff"
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+
+            {/* The outside of the drawer */}
+            <Drawer
+              //from which side the drawer slides in
+              anchor="left"
+              //if open is true --> drawer is shown
+              open={openDrawer}
+              //function that is called when the drawer should close
+              onClose={toggleDrawer(false)}
+              //function that is called when the drawer should open
+              onOpen={toggleDrawer(true)}
+              sx={{}}
+            >
+                {/* The inside of the drawer */}
+                <Box sx={{
+                  px:3,
+                  height: 1,
+                  width: '300px',
+                  backgroundColor: "#fff",
+                  marginTop:'60px'
+                }}>
+
+                  {/* 
+                  when clicking the icon it calls the function toggleDrawer 
+                  and closes the drawer by setting the variable open to false
+                  */}
+                  <IconButton sx={{mb: 2}}>
+                    <CloseIcon onClick={toggleDrawer(false)} />
+                  </IconButton>
+
+                  <Divider sx={{mb: 2}} />
+
+                  <Box sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' },}}>
+                    <Category/>
+                  </Box>        
+                </Box>
+              
+            </Drawer>
+          </Box>
+          <Box sx={{marginRight:'0px',display:{md:"none", xs:'flex'}, flexGrow:{xs:1,md:'0.1'}, justifyContent:{md:'left', xs:'center'}}}>
+          {/* <Link to='/'><img src={logo} width="150px" alt='logo' title='Home'/></Link> */}
+            <Link to='/' style={{color:'inherit',textDecoration:'none'}}><p title='Home' style={{fontSize:'1.6rem',margin:'0px'}}>VideoZilla</p></Link>
+          </Box>
+          <Box flexGrow='1' sx={{display:{md:'flex',xs:'none'}}}>
+            <Category/>
+          </Box>
+          {/* <Box sx={{flexGrow:1,justifyContent:'center',display:{md:'flex',xs:'none'}}}>
           <Search sx={{marginRight:{xs:'5px'}}}>
             <SearchIconWrapper sx={{paddingLeft:{xs:'20px'}}}>
               <SearchIcon />
@@ -273,8 +370,26 @@ const handleSearchKeyPress = async (event) => {
               inputProps={{ 'aria-label': 'search' }}
                />
           </Search>
-        </Box>
-          
+        </Box> */}
+        <Box sx={{justifyContent:'center',display:{md:'flex',xs:'flex'}}}>
+            <Link style={{color:'inherit',textDecoration:'none', display:'flex'}} onClick={()=>{handleClickOpen2();}}><SearchIcon /></Link>
+            <DialogComponent open={open2} handlefunction={handleClose2} title="Search" btn2="Cancel" textfield={
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        placeholder="Search…"
+                        value={searchValue}
+                        type="text"
+                        fullWidth
+                        autoComplete="off"
+                        variant="standard"
+                        onInput={handleSearchChange}
+                        onKeyPress={handleSearchKeyPress}
+                        sx={{marginBottom:'40px'}}
+                      />} />
+
+          </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } , justifyContent:'end'}}>
             {uId == null ? <Box id="userlog" sx={{display:'flex', placeItems:'center', gap:'10px'}}>
