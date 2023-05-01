@@ -3,9 +3,13 @@ import Box from "@mui/material/Box";
 import db from "../firebase";
 import { storage } from "../firebase";
 import {
+  FieldValue,
+  arrayRemove,
   arrayUnion,
   collection,
   deleteDoc,
+  doc,
+  getDoc,
   getDocs,
   increment,
   query,
@@ -34,6 +38,8 @@ import CardComponent from "./CardComponent";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
 import DialogComponent from "./DialogComponent";
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
 const theme = createTheme({
   components: {
@@ -49,6 +55,7 @@ const theme = createTheme({
 });
 function VideoDetail() {
   const navigate = useNavigate();
+  const uId = localStorage.getItem('uId');
   const [isLoading, setIsLoading] = React.useState(true);
   const [video, setVideo] = React.useState([]);
   const [feeds, setFeeds] = React.useState([]);
@@ -57,6 +64,8 @@ function VideoDetail() {
   const [userVideos, setUserVideos] = React.useState([]);
   const { videoId } = useParams();
   const location = useLocation();
+  const [liked, setLiked] = React.useState(false);
+
   const [snackbar, setSnackbar] = React.useState({
     open: false,
     message: "",
@@ -65,6 +74,10 @@ function VideoDetail() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  // const handleClick = () => {
+  //   setLiked(!liked);
+  // }
 
   const handleClickOpen = () =>{
       setOpen(true);
@@ -315,6 +328,75 @@ function VideoDetail() {
       },
     ],
   };
+
+  React.useEffect(() => {
+    const checkLike = async () => {
+      const userDocRef = doc(db, 'users', uId);
+      const user = await getDoc(userDocRef);
+      const likedVideos = user.data().likedVideos || [];
+      if(likedVideos.includes(videoId)){
+        setLiked(likedVideos.includes(videoId));
+      }else if(!likedVideos.includes(videoId)){
+        setLiked(false);
+      }
+    };
+    checkLike();
+  }, [videoId, uId]);
+
+  async function addLike(){
+    const userDocRef = doc(db, 'users', uId);
+    const user = await getDoc(userDocRef);
+    const data = user.data();
+
+    const likedVideos = user.data().likedVideos || [];
+    if(!likedVideos.includes(videoId)){
+      await updateDoc(user.ref,{
+          likedVideos: arrayUnion(videoId)
+      })
+
+    // Increment the like count for the corresponding video document in the "videos" collection
+    const videoDocRef = doc(db, 'videos', videoId);
+    const video = await getDoc(videoDocRef);
+    
+    const likeCount = video.data().likeCount || 0;
+      await updateDoc(video.ref, {
+        likeCount: increment(1)
+      })
+
+      setLiked(true);
+      setSnackbar({
+        open: true,
+        message: `Video liked!`
+      })
+    }
+  }
+
+  async function removeLike(){
+    const userDocRef = doc(db, 'users', uId);
+    const user = await getDoc(userDocRef);
+    const data = user.data();
+
+    const likedVideos = user.data().likedVideos || [];
+    if(likedVideos.includes(videoId)){
+      await updateDoc(user.ref,{
+          likedVideos: arrayRemove(videoId)
+      })
+
+    // Increment the like count for the corresponding video document in the "videos" collection
+    const videoDocRef = doc(db, 'videos', videoId);
+    const video = await getDoc(videoDocRef);
+    
+    const likeCount = video.data().likeCount || 0;
+    if (likeCount > 0) {
+      await updateDoc(video.ref, {
+        likeCount: increment(-1)
+      })
+    }
+      setLiked(false);
+    }
+
+  }
+
   async function deletebtn() {
     const uId = localStorage.getItem("uId");
     const videoCollection = collection(db, "videos");
@@ -485,7 +567,7 @@ function VideoDetail() {
             >
               {user.map((user) => {
                 return (
-                  <Box sx={{ display: "flex", padding: "10px" }} key={user.id}>
+                  <Box sx={{ display: "flex", padding: "10px",flexWrap:'wrap' }} key={user.id}>
                     <Box>
                       <Avatar
                         sx={{
@@ -535,10 +617,16 @@ function VideoDetail() {
                           </p>
                         );
                       })}
-                    </Box>
+                      {response === "true" ? (
+                        <Box title={liked ? 'Liked' : 'Like'}>
+                        {liked ? <ThumbUpAltIcon sx={{cursor:'pointer'}} onClick={()=>removeLike()}/> : <ThumbUpOffAltIcon sx={{cursor:'pointer'}} onClick={()=>addLike()}/>}  
+                        </Box>  
+                      ) : ( "" )}
+                                      
+                      </Box>
                     <Box>
                       {response === "true" ? (
-                        <Box padding="10px 30px" display="block" id="deletebtn">
+                        <Box padding="10px 8px" display="block" id="deletebtn">
                           <Button
                             sx={{
                               backgroundColor: "#fff !important",

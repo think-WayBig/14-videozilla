@@ -97,6 +97,9 @@ const [openDrawer, setStateDrawer] = React.useState(false);
     //changes the function state according to the value of open
     setStateDrawer(open);
   };
+  const handleCloseNavMenu = () => {
+    setStateDrawer(false)
+   };
 
 const [snackbar, setSnackbar] = React.useState({
   open: false,
@@ -289,7 +292,7 @@ const handleSearchKeyPress = async (event) => {
       <AppBar position="static" sx={{backgroundColor: '#1a202c', boxShadow:'none' , padding:{md:'16px',xs:'16px 0px'}}}>
         <Toolbar sx={{backgroundColor:'#1a202c'}}>
 
-          <Box sx={{marginRight:'0px',display:{md:"flex", xs:'none'}, flexGrow:{xs:1,md:'0.1'}, justifyContent:{md:'left', xs:'center'}}}>
+          <Box sx={{marginRight:'0px',display:{md:"flex", xs:'none'}, flexGrow:{xs:1,md:'0.2'}, justifyContent:{md:'left', xs:'center'}}}>
           {/* <Link to='/'><img src={logo} width="150px" alt='logo' title='Home'/></Link> */}
             <Link to='/' style={{color:'inherit',textDecoration:'none'}}><p title='Home' style={{fontSize:'1.6rem',margin:'0px'}}>VideoZilla</p></Link>
           </Box>
@@ -306,7 +309,7 @@ const handleSearchKeyPress = async (event) => {
                   xs: 'block',
                   md: 'none',
                 },
-                color:"#fff"
+                color:"#fff !important"
               }}
             >
               <MenuIcon />
@@ -344,7 +347,7 @@ const handleSearchKeyPress = async (event) => {
                   <Divider sx={{mb: 2}} />
 
                   <Box sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' },}}>
-                    <Category/>
+                    <Category handleCloseNavMenu={handleCloseNavMenu}/>
                   </Box>        
                 </Box>
               
@@ -357,7 +360,7 @@ const handleSearchKeyPress = async (event) => {
           <Box flexGrow='1' sx={{display:{md:'flex',xs:'none'}}}>
             <Category/>
           </Box>
-          {/* <Box sx={{flexGrow:1,justifyContent:'center',display:{md:'flex',xs:'none'}}}>
+          <Box sx={{flexGrow:1,justifyContent:'right',display:{md:'flex',xs:'none'}}}>
           <Search sx={{marginRight:{xs:'5px'}}}>
             <SearchIconWrapper sx={{paddingLeft:{xs:'20px'}}}>
               <SearchIcon />
@@ -370,8 +373,8 @@ const handleSearchKeyPress = async (event) => {
               inputProps={{ 'aria-label': 'search' }}
                />
           </Search>
-        </Box> */}
-        <Box sx={{justifyContent:'center',display:{md:'flex',xs:'flex'}}}>
+        </Box>
+        <Box sx={{justifyContent:'center',display:{md:'none',xs:'flex'}}}>
             <Link style={{color:'inherit',textDecoration:'none', display:'flex'}} onClick={()=>{handleClickOpen2();}}><SearchIcon /></Link>
             <DialogComponent open={open2} handlefunction={handleClose2} title="Search" btn2="Cancel" textfield={
                       <TextField
