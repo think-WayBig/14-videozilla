@@ -357,11 +357,11 @@ const handleSearchKeyPress = async (event) => {
           {/* <Link to='/'><img src={logo} width="150px" alt='logo' title='Home'/></Link> */}
             <Link to='/' style={{color:'inherit',textDecoration:'none'}}><p title='Home' style={{fontSize:'1.6rem',margin:'0px'}}>VideoZilla</p></Link>
           </Box>
-          <Box flexGrow='1' sx={{display:{md:'flex',xs:'none'}}}>
+          <Box flexGrow='1' sx={{display:{md:'flex',xs:'none'}, marginTop: '11px'}}>
             <Category/>
           </Box>
           <Box sx={{flexGrow:1,justifyContent:'right',display:{md:'flex',xs:'none'}}}>
-          <Search sx={{marginRight:{xs:'5px'}}}>
+          <Search sx={{marginRight:{xs:'30px'}}}>
             <SearchIconWrapper sx={{paddingLeft:{xs:'20px'}}}>
               <SearchIcon />
             </SearchIconWrapper>
